@@ -1,0 +1,148 @@
+//----------------------------------
+//
+//          PRACTICA 2
+//
+//----------------------------------
+//           PARTE 1
+//----------------------------------
+//
+//--------ENMANUEL RODRIGUEZ--------
+
+//Declaracion de pines
+const int led_0 = 4;
+const int led_1 = 5;
+const int led_2 = 6;
+const int led_3 = 7;
+const int led_4 = 8;
+const int led_5 = 9;
+
+const int PB_UP = 2;
+const int PB_DOWN = 3;
+
+
+
+void setup()
+{
+  //Entradas y salidas
+  pinMode(led_0, OUTPUT);
+  pinMode(led_1, OUTPUT);
+  pinMode(led_2, OUTPUT);
+  pinMode(led_3, OUTPUT);
+  pinMode(led_4, OUTPUT);
+  pinMode(led_5, OUTPUT);
+  
+  pinMode(PB_UP, INPUT);
+  pinMode(PB_DOWN, INPUT);
+
+}
+
+int led[6] = {0, 0, 0, 0, 0, 0}; //arreglo para los led's
+uint16_t counter = 0;
+int modoCambio = 0; 			//contador para el modo cambio
+
+int tmp = 0; 				    //variable temporal
+
+
+
+void loop()
+{
+  //Condiciones para el conteo binario a modo cambio(ascendente y descendete)
+  
+  counter++;
+  int PB_bajar = digitalRead(PB_DOWN);
+  
+  if ((PB_bajar == 0) && (counter >= 25)){
+       counter = 0;
+   	   modoCambio++;  //El contador modoCambio aumenta
+    
+  } else if ((PB_bajar == 1) && (counter == 25)){
+       counter = 0;
+       modoCambio--;  //El contador modoCambio disminuye
+  }
+  
+  if (modoCambio == 0){
+    led[0] = 0;
+    led[1] = 0;
+    led[2] = 0;
+    led[3] = 0;
+    led[4] = 0;
+    led[5] = 0;
+    
+  } else if (modoCambio == 64) {
+  	modoCambio = 0;
+    led[0] = 0;
+    led[1] = 0;
+    led[2] = 0;
+    led[3] = 0;
+    led[4] = 0;
+    led[5] = 0;
+    
+  } else if (modoCambio == -1){
+  	modoCambio = 63;
+    led[0] = 1;
+    led[1] = 1;
+    led[2] = 1;
+    led[3] = 1;
+    led[4] = 1;
+    led[5] = 1;
+    
+  } else if(modoCambio > 0){ //condiciones cuando el modoCambio es mayor que cero
+    tmp = modoCambio;       //Variable temporal es igual al modoCambio
+    
+      
+      if (tmp < 32){ //Condicion dada porque 2^5 = 32
+          led[5] = 0;
+      }
+      if (tmp >= 32){
+          tmp = tmp - 32;
+          led[5] = 1;
+      }
+      if (tmp < 16){ //Condicion dada porque 2^4 = 16
+          led[4] = 0;
+      }
+      if (tmp >= 16){
+      	  tmp = tmp - 16;
+          led[4] = 1;
+      } 
+      if (tmp < 8){ //Condicion dada porque 2^3 = 8
+          led[3] = 0;
+      }
+      if (tmp >= 8){
+      	  tmp = tmp - 8;
+          led[3] = 1;
+      }
+      if (tmp < 4){ //Condicion dada porque 2^2 = 4
+          led[2] = 0;
+      }
+      if (tmp >= 4){
+      	  tmp = tmp - 4;
+          led[2] = 1;
+      } 
+      if (tmp < 2){ //Condicion dada porque 2^1 = 1
+          led[1] = 0;
+      }
+      if (tmp >= 2){
+      	  tmp = tmp - 2;
+          led[1] = 1;
+      } 
+      if (tmp < 1){ //Condicion dada porque 2^0 = 1
+          led[0] = 0;
+      }
+      if (tmp >= 1){
+      	  tmp = tmp - 1;
+          led[0] = 1;
+      } 
+    
+  }   
+  
+  //Salida de los led's
+  digitalWrite(led_0, led[0]);
+  digitalWrite(led_1, led[1]);
+  digitalWrite(led_2, led[2]);
+  digitalWrite(led_3, led[3]);
+  digitalWrite(led_4, led[4]);
+  digitalWrite(led_5, led[5]);
+  
+  
+  delay(10); //
+}
