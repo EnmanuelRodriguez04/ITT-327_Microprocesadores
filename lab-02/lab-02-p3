@@ -39,9 +39,8 @@ void setup() {
 }
 
 void loop() {
-  
 
-  //Secuencia para aumentar 
+  //Secuencia para aumentar
 
   if (digitalRead(PB_UP) == LOW)
   {
@@ -55,6 +54,7 @@ void loop() {
     if (contador > 6)
     {
       contador = 6;       //El contador permanece en ese extremo
+    }
   }
 
   //Secuencia para retroceder
@@ -73,7 +73,6 @@ void loop() {
       contador = 0;       //El contador permanece en ese extremo
     }
   }
-
 
   switch (contador)
   {
