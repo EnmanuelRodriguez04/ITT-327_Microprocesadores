@@ -1,0 +1,198 @@
+//----------------------------------
+//
+//          PRACTICA 3
+//
+//----------------------------------
+//          
+//----------------------------------
+//
+//--------ENMANUEL RODRIGUEZ--------
+
+//Declaracion de pines
+#define SEGMENTO_A     2
+#define SEGMENTO_B     3
+#define SEGMENTO_C     4
+#define SEGMENTO_D     5
+#define SEGMENTO_E     6
+#define SEGMENTO_F     7
+#define SEGMENTO_G     8
+#define SEGMENTO_DP    9
+
+#define DIGITO_0       13
+#define DIGITO_1       12
+#define DIGITO_2       11
+#define DIGITO_3       10
+
+#define ANALOG_INPUT   A0
+#define PushButton     A2
+
+uint8_t segmento_pines[8] = {SEGMENTO_A, SEGMENTO_B, SEGMENTO_C, SEGMENTO_D, SEGMENTO_E, SEGMENTO_F, SEGMENTO_G, SEGMENTO_DP};
+uint8_t catodo_digitos[4] = {DIGITO_0,DIGITO_1,DIGITO_2,DIGITO_3};
+
+int displaySeven[10]= {0x3F,0x06,0x5B,0x4F,0x66,0x6D,0x7D,0x07,0x7F,0x6F};
+int displayOther[6]= {0xBF,0x86,0xDB,0xCF,0xE6,0xED};
+
+bool anotar = false;
+bool iniciar = false;
+
+int verificar = 0;
+int estado = 0;
+
+uint8_t contador = 0;
+
+uint8_t digito1 = 0;
+uint8_t digito2= 0;
+uint8_t digito3= 0;
+uint8_t digito4= 0;
+
+void ssd_output_code(uint8_t code, uint8_t digito){
+  
+  bool segmentos[8];
+  
+  segmentos[0] = (code & (1 << 0)) != 0;
+  segmentos[1] = (code & (1 << 1)) != 0;
+  segmentos[2] = (code & (1 << 2)) != 0;
+  segmentos[3] = (code & (1 << 3)) != 0;
+  segmentos[4] = (code & (1 << 4)) != 0;
+  segmentos[5] = (code & (1 << 5)) != 0;
+  segmentos[6] = (code & (1 << 6)) != 0;
+  segmentos[7] = (code & (1 << 7)) != 0;
+  
+  bool digitos[4];
+  
+  digitos[0] = digitos[1] = digitos[2] = digitos[3] = HIGH;
+  digitos[digito] = LOW;
+  
+  digitalWrite(SEGMENTO_A, segmentos[0]);
+  digitalWrite(SEGMENTO_B, segmentos[1]);
+  digitalWrite(SEGMENTO_C, segmentos[2]);
+  digitalWrite(SEGMENTO_D, segmentos[3]);
+  digitalWrite(SEGMENTO_E, segmentos[4]);
+  digitalWrite(SEGMENTO_F, segmentos[5]);
+  digitalWrite(SEGMENTO_G, segmentos[6]);
+  digitalWrite(SEGMENTO_DP, segmentos[7]);
+  
+  digitalWrite(DIGITO_0, digitos[0]);
+  digitalWrite(DIGITO_1, digitos[1]);
+  digitalWrite(DIGITO_2, digitos[2]);
+  digitalWrite(DIGITO_3, digitos[3]);
+  
+}
+
+int digito(uint8_t potenciometro){
+  
+  for(int i = 0; i < 10; i++){
+  if(potenciometro == i){
+    
+    return displaySeven[i];
+  }
+  }
+}
+
+int digitodp(uint8_t potenciometro){
+  
+  for(int i = 0; i < 6; i++){
+  if(potenciometro == i){
+    
+    return displayOther[i];
+  }
+  }
+}
+
+
+void setup(){
+  pinMode(SEGMENTO_A, OUTPUT);
+  pinMode(SEGMENTO_B, OUTPUT);
+  pinMode(SEGMENTO_C, OUTPUT);
+  pinMode(SEGMENTO_D, OUTPUT);
+  pinMode(SEGMENTO_E, OUTPUT);
+  pinMode(SEGMENTO_F, OUTPUT);
+  pinMode(SEGMENTO_G, OUTPUT);
+  pinMode(SEGMENTO_DP, OUTPUT);
+  
+  pinMode(DIGITO_0, OUTPUT);
+  pinMode(DIGITO_1, OUTPUT);
+  pinMode(DIGITO_2, OUTPUT);
+  pinMode(DIGITO_3, OUTPUT);
+  
+  Serial.begin(9600);
+}
+
+void loop(){
+  
+  int button = digitalRead(PushButton);
+  double voltajeA = 0;
+  
+  uint16_t sensor_read = analogRead(ANALOG_INPUT);
+  uint16_t voltajeB = 0;
+  
+  
+  if(button != estado){
+    if(button == 1 && anotar){
+    if(verificar == 2){
+      verificar = 0;
+    }
+    else{
+      verificar += 1;
+    }
+    anotar = false;
+  }
+    
+  }
+  estado = button;
+  
+  
+  
+  if(verificar == 0){
+  	voltajeB = ((sensor_read * 5.000) / 1024) * 1000;
+  	digito1 = digitodp(voltajeB / 1000);
+  	digito2 = digito((voltajeB % 1000) / 100);
+  	digito3 = digito(((voltajeB % 1000) % 100) / 10);
+  	digito4 = digito(((voltajeB % 1000) % 100) % 10);
+    anotar = true;
+  }
+  
+  if(verificar == 1){
+  	digito1 = digitodp(5);
+  	digito2 = digito(0);
+  	digito3 = digito(0);
+  	digito4 = digito(0);
+    anotar = true;
+  }
+  
+  else if(verificar == 2){
+  	digito1 = digito(sensor_read / 1000);
+  	digito2 = digito((sensor_read % 1000) / 100);
+  	digito3 = digito(((sensor_read % 1000) % 100) / 10);
+  	digito4 = digito(((sensor_read % 1000) % 100) % 10);
+    anotar = true;
+  }
+  
+  if(contador == 25){
+    if(sensor_read > 1000){
+    	Serial.print(sensor_read);
+  	}
+  	else{
+    	Serial.print(" ");
+    	Serial.print(sensor_read);
+  	}
+  
+  	voltajeA = (sensor_read * 5.000) / 1024;
+  	Serial.print('\t');
+  	Serial.print(voltajeA,3);
+  	Serial.print('\t');
+  	Serial.println(" 5.000 Kohm");
+    contador = 0;
+  }
+  
+  ssd_output_code(digito1,3);
+  delay(10);
+  ssd_output_code(digito2,2);
+  delay(10);
+  ssd_output_code(digito3,1);
+  delay(10);
+  ssd_output_code(digito4,0);
+  delay(10);
+  contador += 1;
+  
+}
